@@ -18,18 +18,14 @@
   "preferences": {
     "target_roles": [],
     "sources": [],
-    "search_languages": [
-      "zh",
-      "en"
-    ],
-    "city_mode": "website_default",
-    "commute_scoring": false,
+    "search_languages": [],
+    "city_mode": null,
+    "commute_scoring": null,
     "salary": {
-      "currency": "CNY",
-      "period": "month",
-      "basis": "gross_fixed",
+      "currency": null,
+      "period": null,
+      "basis": null,
       "minimum": null,
-      "advertised_upper_must_exceed": null,
       "allow_crossing_range": null
     },
     "excluded_industries": [],

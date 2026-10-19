@@ -4,6 +4,8 @@
 
 策略含 schema_version=1、policy_id、version 及六个数组：hard_constraints、soft_preferences、exclusions、tradeoffs、priority_rules、verification_rules。空数组表示没有指定该类规则，不擅自添加职业或薪资限制。
 
+通用 Skill 只保留事实引用、规则优先关系及结果校验机制。具体城市、薪资金额或口径、公司规模、职业方向、雇主名单及推荐/排除理由属于任务数据，不随技能发布。空模板不是默认推荐策略，旧候选资料中的特殊规则也须先编入有来源的任务 policy，不能由兼容代码暗中执行。
+
 每条规则含 id、statement、source。source 含 kind=user_instruction/candidate_evidence/confirmed_preference、ref=可定位资料或对话引用、quote=原文。ID 跨分类唯一。候选事实不自动成为偏好，推断需求先核实，不能以“系统默认”伪造来源。
 
 tradeoffs 额外含非空 may_relax_rule_ids，仅可引用 soft_preferences。硬条件、排除项、强制核实项不能覆盖。priority_rules 影响顺序不改变资格。verification_rules 是申请前必须解决的信息条件，未知阻止 apply。

@@ -4,7 +4,7 @@
 
 主 Agent 负责规划和调度，Python 负责网页读取、确定性校验与持久化，Reviewer Subagent 负责 JD 语义审阅。无需自行配置外部 LLM API。
 
-当前版本：**v3.0.0**。技能入口：[job-search/SKILL.md](job-search/SKILL.md)。
+当前版本：**v3.0.1**。技能入口：[job-search/SKILL.md](job-search/SKILL.md)。
 
 ## 安装与使用
 
@@ -29,6 +29,7 @@ python -m pip install -r job-search/scripts/requirements.txt
 - 主 Agent 动态选择方向、顺序和批次，各网站数据独立保存。
 - 搜索前主动核实登录；登录未知、验证码、访问拒绝或额度问题保存断点并暂停。
 - Reviewer 注入任务专属 `review_policy`，硬条件、软偏好、排除项、tradeoff 和核实规则分别表达。
+- 城市、语言、薪资口径、公司规模、雇主名单及审阅倾向均来自当前任务；通用模板不预填这些偏好。
 - 审阅绑定 JD、候选事实与策略内容；输入变化后旧结果不能继续执行。
 - JSON 为主数据，JSONL 记录状态和真实操作，CSV 重导出保留人工选择及备注。
 - `apply` 是审阅建议；沟通、消息、上传、填写、下一步和提交各自核对授权。
@@ -56,7 +57,7 @@ python -m unittest discover -s job-search/scripts/tests -v
 python tools/check_package.py
 ```
 
-v3.0.0 的 **64 项离线测试通过**，覆盖输入版本、规则边界、暂停恢复、未知操作结果、CSV 人工字段保留及命令行衔接。另已完成 BOSS 登录、原生规模筛选、岗位采集、完整 JD 核对、Reviewer 审阅和 CSV 交付的真实只读试跑。
+v3.0.1 的 **66 项离线测试通过**，覆盖偏好模板中立性、输入版本、规则边界、暂停恢复、未知操作结果、CSV 人工字段保留及命令行衔接。另已完成 BOSS 登录、原生规模筛选、岗位采集、完整 JD 核对、Reviewer 审阅和 CSV 交付的真实只读试跑。
 
 网站 DOM 和风控表现会变化。默认登录标识仅配置了 BOSS；其他平台需核实当前页面并配置。部分采集适配器仍保留边搜索边读正文的旧实现，正式审阅前会再统一核验身份与完整性。
 

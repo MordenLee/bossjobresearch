@@ -22,6 +22,7 @@ from execution import authorize, checked_bundle
 from session import inspect_login, connect_owned
 from detail import apply_detail
 from collect import Guard, UserActionRequired
+from salary import salary_gate
 
 
 class Contracts(unittest.TestCase):
@@ -47,6 +48,18 @@ class Contracts(unittest.TestCase):
 
     def test_empty_policy_has_no_implicit_profession_or_salary(self):
         self.validate(); validate_policy(self.policy)
+    def test_candidate_template_does_not_choose_business_preferences(self):
+        template=read(Path(__file__).resolve().parents[2]/'assets/candidate.template.json')
+        prefs=template['preferences']
+        self.assertEqual(prefs['search_languages'],[])
+        self.assertIsNone(prefs['city_mode'])
+        self.assertIsNone(prefs['commute_scoring'])
+        self.assertTrue(all(value is None for value in prefs['salary'].values()))
+        self.assertEqual(prefs['target_roles'],[])
+        self.assertEqual(prefs['excluded_industries'],[])
+        self.assertEqual(prefs['excluded_roles'],[])
+    def test_salary_without_explicit_threshold_does_not_filter(self):
+        self.assertEqual(salary_gate('10-20K',None),{'status':'unset'})
     def test_unknown_risk_severity_fails_at_reviewer_boundary(self):
         self.review['risks']=[{'severity':'warning','finding':'gap','evidence':'facts'}]
         with self.assertRaises(ValueError):self.validate()

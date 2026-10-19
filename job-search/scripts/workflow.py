@@ -222,12 +222,6 @@ def build(site, jobs, screens, reviews, candidate, review_policy=None):
                     or (review_policy is None and not constraints) or any(c['status'] != 'pass' for c in constraints)
                     or any(r['severity'] == 'blocking' for r in risks) or questions):
                     raise ValueError(f'{key}: 未解决职责/门槛/风险/问题，不得申请')
-                from salary import salary_gate
-                policy = candidate.get('preferences',{}).get('salary',{})
-                if review_policy is None and policy.get('advertised_upper_must_exceed') is not None:
-                    gate = salary_gate(job.get('salary'),policy['advertised_upper_must_exceed'],'upper')
-                    if gate.get('upper') is None or gate['upper'] <= policy['advertised_upper_must_exceed']:
-                        raise ValueError(f'{key}: 广告薪资上限未满足用户设置')
             if decision == 'verify' and (not questions or any(not isinstance(q, str) or not q.strip() for q in questions)):
                 raise ValueError(f'{key}: 待核实必须有具体问题')
             priority = review.get('priority')

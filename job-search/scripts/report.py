@@ -64,7 +64,7 @@ def render(rows):
 h1{font-size:26px}p{color:#567}.table{overflow:auto;background:white;border-radius:12px}
 table{border-collapse:collapse;min-width:1200px;width:100%}th,td{padding:12px;border-bottom:1px solid #dde3ea;text-align:left;vertical-align:top;font-size:14px}
 th{background:#eef3f8}a{color:#1764b5}td:nth-child(8){min-width:240px}td:nth-child(9),td:nth-child(10){min-width:160px}</style>
-<h1>求职岗位分析</h1><p>按推荐状态及 AI 投递优先级排序。城市沿用网站设置；地址仅展示，不计算通勤分。缺失信息需核实。</p>
+<h1>求职岗位分析</h1><p>展示采集事实与当前任务的审阅结果，按建议状态及优先级排序。地区范围、薪酬口径及个人偏好由任务输入确定；缺失信息需核实。</p>
 <div class="table"><table><thead><tr><th>状态</th><th>优先级</th><th>岗位</th><th>公司</th><th>薪资</th><th>地点</th><th>来源</th><th>匹配依据</th><th>能力缺口</th><th>风险与待核实</th></tr></thead><tbody>''' + ''.join(body) + '</tbody></table></div></html>'
 
 
