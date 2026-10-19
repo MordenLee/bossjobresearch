@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "policy_id": "new-task",
+  "version": "1",
+  "hard_constraints": [],
+  "soft_preferences": [],
+  "exclusions": [],
+  "tradeoffs": [],
+  "priority_rules": [],
+  "verification_rules": []
+}

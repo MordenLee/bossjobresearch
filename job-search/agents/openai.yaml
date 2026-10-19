@@ -1,0 +1,4 @@
+interface:
+  display_name: "找工作"
+  short_description: "按网站找工作、初筛与逐岗审阅，输出待办并在授权范围投递，缺失信息及时问询"
+  default_prompt: "使用 $job-search 根据我的简历逐站找工作，初筛后逐岗审阅，生成待办并在我的授权范围内投递。"

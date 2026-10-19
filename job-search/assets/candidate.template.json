@@ -1,0 +1,46 @@
+{
+  "schema_version": 3,
+  "profile_id": null,
+  "cv": {
+    "personal": {
+      "name": null,
+      "email": null,
+      "phone": null,
+      "location": null
+    },
+    "education": [],
+    "experience": [],
+    "projects": [],
+    "skills": [],
+    "languages": []
+  },
+  "evidence": {},
+  "preferences": {
+    "target_roles": [],
+    "sources": [],
+    "search_languages": [
+      "zh",
+      "en"
+    ],
+    "city_mode": "website_default",
+    "commute_scoring": false,
+    "salary": {
+      "currency": "CNY",
+      "period": "month",
+      "basis": "gross_fixed",
+      "minimum": null,
+      "advertised_upper_must_exceed": null,
+      "allow_crossing_range": null
+    },
+    "excluded_industries": [],
+    "excluded_roles": []
+  },
+  "answers": [],
+  "documents": {},
+  "authorization": {
+    "sources": [],
+    "actions": [],
+    "user_instruction": null,
+    "job_keys": null
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "source": "boss",
+  "title": ".job-banner .name h1, .job-banner h1",
+  "company": ".sider-company .company-info",
+  "description": ".job-sec-text",
+  "truncation_selector": ".job-sec-text .expand-btn",
+  "extra_fields": {
+    "company_summary": ".sider-company",
+    "company_profile": ".job-detail-company .company-info-box .job-sec-text",
+    "legal_name": ".business-info-box .company-name"
+  }
+}

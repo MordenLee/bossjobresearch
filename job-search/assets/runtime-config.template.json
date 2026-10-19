@@ -1,0 +1,16 @@
+{
+  "task_id": "replace-with-current-task-id",
+  "session": {
+    "hosts": [
+      "zhipin.com"
+    ],
+    "signed_in_selectors": [
+      "css:.nav-figure"
+    ]
+  },
+  "quota": {
+    "minimum_remaining_percent": 5,
+    "max_age_seconds": 900,
+    "check_after_records": 100
+  }
+}
