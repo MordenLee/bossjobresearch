@@ -66,7 +66,8 @@ def canonical_url(value):
     if not p.netloc:
         return ''
     # BOSS HC identity is in the path; tracking/security query values rotate.
-    query = '' if p.hostname in ('www.zhipin.com', 'zhipin.com') and p.path.startswith('/job_detail/') else p.query
+    liepin_job = p.hostname in ('www.liepin.com', 'liepin.com') and bool(re.fullmatch(r'/(?:job|a)/\d+\.shtml', p.path))
+    query = '' if liepin_job or p.hostname in ('www.zhipin.com', 'zhipin.com') and p.path.startswith('/job_detail/') else p.query
     return urlunsplit((p.scheme.lower(), p.netloc.lower(), p.path.rstrip('/'), query, ''))
 
 

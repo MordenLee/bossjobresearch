@@ -22,7 +22,8 @@ def safe_cell(value):
     return "'" + text if text.lstrip().startswith(('=', '+', '-', '@')) or text.startswith(('\t', '\r')) else text
 
 
-def export(bundle, path):
+def export(bundle, path, machine_fields=None):
+    machine_fields = machine_fields or MACHINE
     path = Path(path); previous = {}; extras = []
     if path.exists():
         with path.open(newline='', encoding='utf-8-sig') as stream:
@@ -35,7 +36,7 @@ def export(bundle, path):
                 if identity in previous:
                     raise ValueError('旧 CSV 存在重复岗位键，先解决冲突')
                 previous[identity] = row
-    fields = MACHINE + HUMAN + extras
+    fields = machine_fields + HUMAN + extras
     rows = []; seen = set()
     current = bundle['todos']
     archived = bundle.get('archived_todos', [])
@@ -45,7 +46,7 @@ def export(bundle, path):
             if identity in seen:
                 raise ValueError('JSON 存在重复岗位键，停止导出')
             seen.add(identity)
-            row = {f: safe_cell(todo.get(f, '')) for f in MACHINE}
+            row = {f: safe_cell(todo.get(f, '')) for f in machine_fields}
             row['questions'] = safe_cell(' | '.join(todo.get('questions', [])))
             row['in_current_view'] = 'true' if active else 'false'
             row.update({f: previous.get(identity, {}).get(f, '') for f in HUMAN + extras})
@@ -63,13 +64,25 @@ def export(bundle, path):
     return len(rows)
 
 
+JOB_FIELDS = ['source','job_key','company','job_name','location','salary','experience','education',
+              'company_info','keyword','jd_description','detail_state','detail_read_error',
+              'jd_read_at','job_url','in_current_view']
+
+
+def export_jobs(jobs, path):
+    """Raw acquisition export, explicitly not a recommendation/application queue."""
+    return export({'todos': jobs}, path, JOB_FIELDS)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--todos', required=True); parser.add_argument('--out', required=True)
+    inputs = parser.add_mutually_exclusive_group(required=True)
+    inputs.add_argument('--todos'); inputs.add_argument('--jobs')
+    parser.add_argument('--out', required=True)
     args = parser.parse_args()
     from runtime import writer_lock
     with writer_lock(Path(args.out).resolve().parent):
-        print(export(read(args.todos), args.out))
+        print(export_jobs(read(args.jobs), args.out) if args.jobs else export(read(args.todos), args.out))
 
 
 if __name__ == '__main__':

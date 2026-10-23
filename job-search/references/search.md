@@ -31,3 +31,11 @@ selectors.json 含 source、title/company/description 三个 CSS 选择器和可
 --refresh 显式刷新已 READY 的岗位；正文变化保留历史，旧审阅随输入 hash 失效。不自动点击“展开全文”；检测截断先暂停，由主 Agent 用标准已核实控件展开后重新读，需成本升级则确认。读取错误、身份错配、正文不完整分别保存，不用这些结果证明岗位关闭。
 
 恢复保留既有 jobs、coverage、skipped、failures；未完成关键词从顶部重放并去重。预算不足以越过旧边界时报告实际窗口，不冒充没有新岗位；新预算放新批次，经主 Agent 合并稳定键与出现记录。不同城市/方向批次的覆盖应在 search-plan.json 中独立记录。
+
+## 猎聘
+
+新版列表使用 `a[data-nick="job-detail-job-info"]` 与相邻公司区读取字段，避免依赖构建哈希类名。`runtime-config.json.search_url` 可配置从页面实际核实的 `/zhaopin/` URL；替换关键词只重置页码，保留城市、薪资、规模等平台条件。未配置时为全国，不从候选人配置猜城市代码。
+
+猎聘正文从详情页 `[data-selector="job-intro-content"]` 读取，主标题限定在 `.job-apply-content`，避免混入相关推荐。保存 `collected_detail_evidence`，复用 `detail.apply_detail` 的 URL、标题、公司、完整性检查；匿名雇主或名称变化留身份待核实，保留原文，不冒充 READY。跟踪参数不参与 `/job/<id>.shtml` 与 `/a/<id>.shtml` 的稳定身份；两种路径不合并。
+
+列表无卡片报读取未就绪，不等于无岗位。详情失败保存 `detail_read_error`；登录/验证暂停保留窗口。每条完成后通过采集入口立即落盘。该适配仅验证采集，不能据此声称支持猎聘自动投递。

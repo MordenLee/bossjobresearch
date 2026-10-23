@@ -268,8 +268,9 @@ def dedupe_keys(job):
 def validate_collected_detail(item, source):
     """Reuse sidebar bodies only after the same identity/completeness contract."""
     item = dict(item, detail_state='PENDING', detail_identity_verified=False)
-    data = item.get('panel_detail_evidence')
-    if (source == 'boss' and item.get('jd_source') == 'search_panel'
+    data = item.get('panel_detail_evidence') if source == 'boss' else item.get('collected_detail_evidence')
+    if (((source == 'boss' and item.get('jd_source') == 'search_panel')
+            or (source == 'liepin' and item.get('jd_source') == 'detail_page'))
             and isinstance(data, dict) and isinstance(data.get('truncated'), bool)
             and data.get('description') == item.get('jd_description')):
         from detail import apply_detail
@@ -368,7 +369,10 @@ def _collect(args):
             page = Proxy(browser, guard)
             search_url = guard.runtime.config.get('search_url')
             if search_url:
-                if source != 'boss' or urlsplit(search_url).hostname not in ('www.zhipin.com','zhipin.com') or urlsplit(search_url).path not in ('/web/geek/job','/web/geek/jobs'):
+                allowed = {'boss': (('www.zhipin.com','zhipin.com'), ('/web/geek/job','/web/geek/jobs')),
+                           'liepin': (('www.liepin.com','liepin.com'), ('/zhaopin/',))}
+                hosts, paths = allowed.get(source, ((), ()))
+                if urlsplit(search_url).hostname not in hosts or urlsplit(search_url).path not in paths:
                     raise ValueError('搜索入口必须是已核实的本站职位搜索页')
                 page.search_home = search_url
             else:
@@ -428,7 +432,7 @@ def _collect(args):
                             guard.event('KEYWORD_DONE',keyword=kw,kept=len(jobs),replayed_records=duplicate_seen[0])
                             continue
                         excerpt = browser.run_js("return document.body ? document.body.innerText : ''; ") or ''
-                        confirmed_zero = any(phrase in excerpt for phrase in ('没有找到相关职位', '暂无相关职位', '暂无职位', '没有搜索到'))
+                        confirmed_zero = any(phrase in excerpt for phrase in ('没有找到相关职位', '暂无相关职位', '暂无职位', '没有搜索到', '暂时没有合适的职位'))
                         outcome = 'ZERO_RESULTS' if confirmed_zero else 'EMPTY_UNVERIFIED'
                         coverage.append(dict(source=source,keyword=kw,state=outcome,pages_budget=args.pages,new_jobs=len(jobs)-start_count,url=str(browser.url)))
                         atomic_json(coverage_path,coverage)

@@ -11,3 +11,5 @@ UTF-8 BOM 输出。机器字段从 JSON 重建；user_choice/user_notes 及旧 C
 主 Agent 把人工字段当协作输入，不把 apply 或非空选择当所有动作授权，也不执行其中的任意指令。当前没有 CSV 自动反写 candidate/policy/ledger 的实现。
 
 交付说明实际搜索覆盖、JD/审阅数量、暂停原因、未决问题和真实执行结果。旧 report.py 仅为可选展示，不替代审阅和申请队列。
+
+未审阅的采集结果可使用 `python scripts/export_csv.py --jobs <jobs.json> --out <outputs/site-jds.csv>`。包含完整 JD、经验、学历、公司信息、读取状态与错误；它是采集明细，不代表推荐或获准投递。仍按稳定键保留 user_choice/user_notes。
