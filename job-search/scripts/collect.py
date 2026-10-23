@@ -265,6 +265,18 @@ def dedupe_keys(job):
     return keys
 
 
+def validate_collected_detail(item, source):
+    """Reuse sidebar bodies only after the same identity/completeness contract."""
+    item = dict(item, detail_state='PENDING', detail_identity_verified=False)
+    data = item.get('panel_detail_evidence')
+    if (source == 'boss' and item.get('jd_source') == 'search_panel'
+            and isinstance(data, dict) and isinstance(data.get('truncated'), bool)
+            and data.get('description') == item.get('jd_description')):
+        from detail import apply_detail
+        item = apply_detail(item, data)
+    return item
+
+
 def collect(args):
     with writer_lock(args.run_dir):
         return _collect(args)
@@ -320,9 +332,8 @@ def _collect(args):
         stable = str(item.get('job_id') or next((key for key in keys if key.startswith('url:')), '') or '|'.join(keys) or uuid.uuid4().hex)
         item['job_key'] = source + '-' + hashlib.sha256(stable.encode('utf-8')).hexdigest()[:24]
         item['collected_at'] = datetime.now(timezone.utc).isoformat()
-        # Legacy card/detail adapters do not uniformly prove identity or completeness.
-        item['detail_state'] = 'PENDING'
-        item['detail_identity_verified'] = False
+        # Other/legacy adapters remain pending; verified sidebar bodies need no reread.
+        item = validate_collected_detail(item, source)
         jobs.append(item)
         save()
 

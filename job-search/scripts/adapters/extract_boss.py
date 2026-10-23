@@ -47,7 +47,6 @@ def clean_desc_text(text: str) -> str:
     if not text:
         return ''
     s = str(text)
-    s = s.replace('kanzhun', '').replace('boss', '')
     s = re.sub('\\s+\\n', '\n', s)
     s = re.sub('\\n{3,}', '\n\n', s)
     return s.strip()
@@ -193,56 +192,89 @@ def _search_keyword(page, keyword: str) -> None:
     search_btn.click()
     must_ele(page, 'css:.rec-job-list .card-area .job-card-wrap', timeout=25)
 
-def _wait_detail_box(page, timeout: int=3):
-    end = time.time() + timeout
-    while time.time() < end:
-        detail = page.ele('css:.job-detail-box', timeout=1)
-        if detail:
-            return detail
-        time.sleep(0.2)
-    return None
+def read_search_detail(page) -> Dict[str, Any]:
+    """One read-only DOM snapshot; never clicks a detail/communication link."""
+    read = page.read_js if callable(getattr(type(page), 'read_js', None)) else page.run_js
+    return read(r"""const d=[...document.querySelectorAll('.job-detail-box')]
+      .find(e=>e.getClientRects().length);if(!d)return {};
+      const q=s=>d.querySelector(s),t=s=>q(s)?.innerText?.trim()||'',
+      ts=s=>[...d.querySelectorAll(s)].map(e=>e.innerText.trim());
+      return {detail_title:t('.job-detail-info .job-name'),
+      detail_salary:t('.job-detail-info .job-salary'),
+      detail_tags:ts('.job-detail-header .tag-list li'),jd_labels:ts('.job-label-list li'),
+      jd_description:t('.desc'),hr_name:t('.job-boss-info .name'),
+      hr_title:t('.job-boss-info .boss-info-attr'),address:t('.job-address-desc'),
+      more_info_url:q('.more-job-btn')?.href||'',
+      detail_company:t('.job-boss-info .boss-info-attr').split(/\s+·\s+/)[0],
+      truncated:!![...d.querySelectorAll('a,button')].find(e=>e.getClientRects().length &&
+        ['展开全文','展开更多','展开职位描述'].includes(e.innerText.trim())) ||
+        !!(q('.desc') && getComputedStyle(q('.desc')).webkitLineClamp !== 'none' &&
+        Number(getComputedStyle(q('.desc')).webkitLineClamp)>0 && q('.desc').scrollHeight>q('.desc').clientHeight),
+      detail_html:d.outerHTML};""") or {}
+
+
+def extract_search_detail(page, record: Dict[str, Any], timeout: float=8) -> Dict[str, Any]:
+    """Select a card in-place, accept only a stable body with the same HC ID.
+
+    Caller persists returned errors too. No new tabs, retries or fallback navigation.
+    Guard exceptions inherit BaseException and must propagate to the collector.
+    """
+    expected = record.get('job_id') or extract_job_id_from_href(record.get('href', ''))
+    def error(reason):
+        return dict(jd_description='', detail_identity_verified=False,
+                    detail_read_error=reason, jd_source='search_panel')
+    if not expected:
+        return error('CARD_ID_MISSING')
+    try:
+        current = read_search_detail(page)
+        switched = extract_job_id_from_href(current.get('more_info_url', '')) != expected
+        old_body = current.get('jd_description', '').strip() if switched else ''
+        if switched:
+            card = find_card_by_href(page, record.get('href', ''))
+            if not card:
+                return error('CARD_NOT_FOUND')
+            # Click the card container, not its anchor (which may open a new tab).
+            (card.ele('css:.job-card-box', timeout=0.5) or card).click(by_js=True)
+        deadline = time.monotonic() + timeout
+        previous = None
+        last = {}
+        while True:
+            last = read_search_detail(page)
+            jid = extract_job_id_from_href(last.get('more_info_url', ''))
+            body = last.get('jd_description', '').strip()
+            title = last.get('detail_title', '').strip()
+            signature = (jid, title, body)
+            if jid == expected and title and body and body != old_body and signature == previous:
+                last.update(jd_description=clean_desc_text(body), jd_source='search_panel',
+                            detail_identity_verified=True, detail_job_id=jid,
+                            jd_read_at=time.time(), detail_read_error=None)
+                return last
+            previous = signature if jid == expected and title and body and body != old_body else None
+            if time.monotonic() >= deadline:
+                break
+            time.sleep(0.25)
+        if not last:
+            return error('PANEL_MISSING')
+        if extract_job_id_from_href(last.get('more_info_url', '')) != expected:
+            return error('PANEL_ID_MISMATCH')
+        if old_body and last.get('jd_description', '').strip() == old_body:
+            return error('PANEL_BODY_UNCHANGED_AFTER_SELECTION')
+        return error('PANEL_BODY_EMPTY_OR_UNSTABLE')
+    except Exception as exc:
+        return error(f'PANEL_READ_FAILED: {type(exc).__name__}: {exc}')
+
 
 def _click_and_extract_detail(page, href: str) -> Dict[str, Any]:
-    card = find_card_by_href(page, href)
-    if not card:
-        return {}
-    try:
-        close_popups(page)
-        card.scroll.to_see()
-    except Exception:
-        pass
-    clicked = False
-    try:
-        anchor = card.ele('css:.job-title .job-name', timeout=1)
-        if anchor:
-            anchor.click(by_js=True)
-            clicked = True
-    except Exception:
-        pass
-    if not clicked:
-        try:
-            card.click(by_js=True)
-            clicked = True
-        except Exception:
-            return {}
-    detail = _wait_detail_box(page)
-    if not detail:
-        return {}
-    detail_title = safe_text(detail, 'css:.job-detail-info .job-name')
-    detail_salary = safe_text(detail, 'css:.job-detail-info .job-salary')
-    detail_tags = safe_texts(detail, 'css:.job-detail-header .tag-list li')
-    jd_labels = safe_texts(detail, 'css:.job-label-list li')
-    jd_desc = clean_desc_text(safe_text(detail, 'css:.desc'))
-    hr_name = safe_text(detail, 'css:.job-boss-info .name')
-    hr_title = safe_text(detail, 'css:.job-boss-info .boss-info-attr')
-    address = safe_text(detail, 'css:.job-address-desc')
-    more_info_url = safe_attr(detail, 'css:.more-job-btn', 'href')
-    more_info_url = urljoin('https://www.zhipin.com', more_info_url) if more_info_url else ''
-    try:
-        detail_html = detail.html
-    except Exception:
-        detail_html = ''
-    return {'detail_title': detail_title, 'detail_salary': detail_salary, 'detail_tags': detail_tags, 'jd_labels': jd_labels, 'jd_description': jd_desc, 'hr_name': hr_name, 'hr_title': hr_title, 'address': address, 'more_info_url': more_info_url, 'detail_html': detail_html}
+    return extract_search_detail(page, {'href': href, 'job_id': extract_job_id_from_href(href)})
+
+
+def needs_detail_read(job: Dict[str, Any]) -> bool:
+    """Only missing bodies or failed sidebar reads enter fallback; no retry loops."""
+    if job.get('jd_description'):
+        return False
+    error = job.get('detail_read_error') or ''
+    return not error or (job.get('jd_source') == 'search_panel' and
+                         error.startswith(('PANEL_', 'CARD_')))
 
 def create_browser(headless=False, profile_dir=None):
     import socket
@@ -266,7 +298,7 @@ def collect_jobs_by_keyword(page, keyword: str, max_jobs: int=80, max_scroll_rou
     api_by_id = {}
     api_by_tc = {}
     update_api_maps_from_packets(drain_packets(page, seconds=2.0), api_by_id, api_by_tc)
-    results: List[Dict[str, Any]] = _streaming_list()
+    results: List[Dict[str, Any]] = globals().get('_streaming_list', list)()
     seen_hrefs = set()
     for round_idx in range(max_scroll_rounds):
         close_popups(page)
@@ -280,7 +312,7 @@ def collect_jobs_by_keyword(page, keyword: str, max_jobs: int=80, max_scroll_rou
             if globals().get('_skip_record', lambda row: False)(preview):
                 seen_hrefs.add(href)
                 continue
-            detail_data = _click_and_extract_detail(page, href)
+            detail_data = extract_search_detail(page, record)
             update_api_maps_from_packets(drain_packets(page, seconds=0.8), api_by_id, api_by_tc)
             job_id = record.get('job_id', '')
             left_title = record.get('title', '')
@@ -295,6 +327,13 @@ def collect_jobs_by_keyword(page, keyword: str, max_jobs: int=80, max_scroll_rou
             salary_from_page = detail_data.get('detail_salary') or record.get('salary', '')
             salary = api_hit['api_salary'] if api_hit and api_hit.get('api_salary') else salary_from_page
             item = {'job_id': job_id, 'job_name': detail_title or left_title, 'salary': salary, 'salary_from_page': salary_from_page, 'tags': detail_data.get('detail_tags') or record.get('tags', []), 'company': left_company, 'location': record.get('location', ''), 'job_url': urljoin('https://www.zhipin.com', href), 'more_info_url': detail_data.get('more_info_url', ''), 'jd_labels': detail_data.get('jd_labels', []), 'jd_description': detail_data.get('jd_description', ''), 'hr_name': detail_data.get('hr_name', ''), 'hr_title': detail_data.get('hr_title', ''), 'address': detail_data.get('address', ''), 'detail_html': detail_data.get('detail_html', ''), 'api_matched': bool(api_hit), 'api_url': (api_hit or {}).get('api_url', ''), 'keyword': keyword}
+            for field in ('detail_identity_verified','detail_job_id','jd_source','jd_read_at','detail_read_error'):
+                item[field] = detail_data.get(field)
+            if detail_data.get('detail_identity_verified') and 'truncated' in detail_data:
+                item['panel_detail_evidence'] = dict(
+                    url=detail_data.get('more_info_url'),title=detail_data.get('detail_title'),
+                    company=detail_data.get('detail_company'),description=detail_data.get('jd_description'),
+                    truncated=detail_data['truncated'],method='search_panel')
             results.append(item)
             seen_hrefs.add(href)
             if len(results) >= max_jobs:

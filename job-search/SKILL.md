@@ -18,7 +18,7 @@ description: 根据简历和求职需求搜索岗位、读取完整 JD，按任�
 ## 业务流程
 
 1. 读 [references/search.md](references/search.md)，Python 搜索前主动核实登录。未登录或未知即保存并暂停；用户登录并明确回复后重新核实会话。运行中遇验证码、拒绝访问、读取异常仍分别处理，不绕过验证。
-2. 初筛只排除有明确证据的不合岗位。使用 detail.py 补齐或刷新完整 JD 并核对身份；未读取、截断、身份不符不等于 JD 没有要求。站点支持受适配器和已核实 DOM 选择器限制。
+2. 初筛只排除有明确证据的不合岗位。BOSS优先逐条读取搜索页右侧JD，按岗位ID核对、保存并统一校验为READY后不重复开详情页。使用 detail.py 补齐未通过的正文或显式刷新；未读取、截断、身份不符不等于 JD 没有要求。站点支持受适配器和已核实 DOM 选择器限制。
 3. 读 [references/review.md](references/review.md) 和 [agents/reviewer.md](agents/reviewer.md)。policy.py 生成审阅包，主 Agent 委派 Reviewer Subagent，注入完整 JD、候选人事实和任务 review_policy。子 Agent 不操作网站。子 Agent 不可用时报告能力缺口，不以关键词评分替代；如需升级工具或高成本模型走升级确认。
 4. Python 校验策略覆盖、证据、硬条件和输入版本，主 Agent 合并结果。所有初筛 keep 都需审阅，分批构建时 jobs/screening/reviews 对应同一批次，未完成队列继续保留。
 5. workflow.py build 生成 apply/verify/skip 待办并合并真实历史。apply 只是建议。按 [references/export.md](references/export.md) 导出 CSV，保留人工选择与备注。字段协议见 [references/protocols.md](references/protocols.md)，策略说明见 [references/review-policy.md](references/review-policy.md)。

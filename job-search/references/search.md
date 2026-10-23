@@ -6,7 +6,11 @@
 python scripts/collect.py --keywords <keywords.json> --run-dir <site-run> --sources boss --target 60 --per-keyword 6 --pages 2
 ```
 
-keywords.json 为 {"keywords":["职位词","English Role"]}。原适配器保留边搜索边读详情的能力，但正文统一核验前标 PENDING；不能因有 jd_description 就跳过身份与完整性检查。
+keywords.json 为 {"keywords":["职位词","English Role"]}。BOSS默认在搜索页逐条切换卡片并读取右侧正文，不点击标题或“查看更多信息”打开新标签。自定义采集复用 `adapters.extract_boss.extract_search_detail(Proxy(browser, guard), card)`，不另写只保存列表卡片的路径。右侧链接ID须与卡片一致，等待非空正文稳定后立即持久化，纯读取使用 `Proxy.read_js`，点击仍受任务等待和批次休息控制。
+
+保存 `jd_source=search_panel`、读取时间、岗位ID及 `panel_detail_evidence`。采集入口使用与详情补读相同的身份及完整性校验：URL、公司、标题严格核对，正文非空且未检测到截断才标READY并生成内容hash。旧适配器仅有正文或verified标志仍标PENDING，不能绕过统一校验。READY正文可直接进入审阅，不重复打开详情页；投递前仍实时核对必要条件。
+
+切换后链接尚未更新、正文仍与上一条相同、面板缺失或空正文分别保存 `detail_read_error`，失败正文留空，不套用上一条JD。完全相同的正文也先保守留待核实。验证/拒绝访问向上抛出并按现有流程暂停，不吞掉异常重试。未READY的条目才进入detail.py补读，已有正文、真实沟通历史不因采集失败被覆盖。
 
 先复制并按任务调整 assets/runtime-config.template.json 为运行目录内 runtime-config.json。登录预检读取可见标识并检查域名；BOSS 有默认 .nav-figure。其他站点需主 Agent 从当前页面核实 hosts 与 signed_in_selectors，未配置则 LOGIN_UNKNOWN 暂停，不能假定登录。选择器验证是标准适配工作；若需高成本网页读取程序则走升级确认。
 
