@@ -47,3 +47,11 @@ selectors.json 含 source、title/company/description 三个 CSS 选择器和可
 列表使用 `.job-list-panel .job-card`，详情在 `.job-detail-panel`。逐条点击卡片本体，读取右侧标题、公司、正文及“查看更多职位信息”的 href，不点击该链接或投递按钮。列表没有公开岗位链接，因此先核对卡片索引与可见字段，等待选中状态、标题、公司、详情URL和正文稳定后，再取得稳定岗位身份；切换时仍沿用旧链接或旧正文则留错误，不跨卡片复用。详情再进入统一校验。相同标题和公司不代表同一 HC。
 
 当前验证范围为已加载的一屏列表，适配器不会声称 max_pages 页已经读取。追加滚动、更多页或新布局需要先核实控件；空列表记为读取异常，尚未配置智联明确零结果标识。登录标识可由任务核实 `.c-login__top__name` 后配置，避免取隐藏菜单作为登录证据。
+
+## 前程无忧 51job
+
+已核实的新版搜索入口是 `https://we.51job.com/pc/search`。先通过首页实际搜索并确认城市，再把实际 URL 保存为任务 `search_url`；适配器替换 keyword、重置 pageNum，保留城市和其他平台条件。首页 `#search-input` 与搜索页 `#keywordInput` 不同，不能混用。任务核实可见 `.name-span` 后配置登录标识。
+
+当前搜索页右侧为推荐区，完整 JD 在点击 `.joblist .joblist-item-job .jname` 后打开的独立详情页。卡片公司位于卡片内部 `.joblist-item-right`。只点击标题，不点击投递或沟通。列表 DOM 的 sensorsdata 提供岗位 ID；详情实际 URL 的数字 ID 必须一致，再以统一协议校验标题、公司与正文。正文读取 `.job_msg.inbox > div:first-child`，排除后面的关键词和推荐。保留原始卡片身份，不能以详情字段覆盖卡片后自证匹配。
+
+分页使用 `.el-pagination .btn-next`，要求岗位 ID 序列变化；不变报错，不把旧页视为翻页成功。空列表为读取未就绪，尚未验证明确零结果标识。读取失败留 detail_read_error；验证暂停保留浏览器。此版本只支持采集，未实现51job自动投递。

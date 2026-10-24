@@ -68,7 +68,8 @@ def canonical_url(value):
     # BOSS HC identity is in the path; tracking/security query values rotate.
     liepin_job = p.hostname in ('www.liepin.com', 'liepin.com') and bool(re.fullmatch(r'/(?:job|a)/\d+\.shtml', p.path))
     zhilian_job = p.hostname in ('www.zhaopin.com', 'zhaopin.com') and bool(re.fullmatch(r'/jobdetail/[A-Za-z0-9]+\.htm', p.path))
-    query = '' if zhilian_job or liepin_job or p.hostname in ('www.zhipin.com', 'zhipin.com') and p.path.startswith('/job_detail/') else p.query
+    job51 = p.hostname == 'jobs.51job.com' and bool(re.fullmatch(r'/[^/]+/\d+\.html', p.path))
+    query = '' if job51 or zhilian_job or liepin_job or p.hostname in ('www.zhipin.com', 'zhipin.com') and p.path.startswith('/job_detail/') else p.query
     return urlunsplit((p.scheme.lower(), p.netloc.lower(), p.path.rstrip('/'), query, ''))
 
 

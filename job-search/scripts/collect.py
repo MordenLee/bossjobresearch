@@ -95,7 +95,15 @@ class Guard:
         # Inspect visible text only. Do not mistake hidden login panels for a challenge.
         try:
             if hasattr(page, 'run_js'):
-                text = page.run_js("return document.body ? document.body.innerText : '';") or ''
+                for attempt in range(3):
+                    try:
+                        text = page.run_js("return document.body ? document.body.innerText : '';") or ''
+                        break
+                    except Exception as transient:
+                        if type(transient).__name__ != 'ContextLostError' or attempt == 2:
+                            raise
+                        time.sleep(.5)
+                url = str(page.url or '').lower()
             else:
                 body = page.ele('css:body', timeout=0.2)
                 text = (body.text if body else '') or ''
@@ -270,7 +278,7 @@ def validate_collected_detail(item, source):
     item = dict(item, detail_state='PENDING', detail_identity_verified=False)
     data = item.get('panel_detail_evidence') if source == 'boss' else item.get('collected_detail_evidence')
     if (((source == 'boss' and item.get('jd_source') == 'search_panel')
-            or (source == 'liepin' and item.get('jd_source') == 'detail_page')
+            or (source in ('liepin', '51job') and item.get('jd_source') == 'detail_page')
             or (source == 'zhilian' and item.get('jd_source') == 'search_panel'))
             and isinstance(data, dict) and isinstance(data.get('truncated'), bool)
             and data.get('description') == item.get('jd_description')):
@@ -370,7 +378,7 @@ def _collect(args):
             page = Proxy(browser, guard)
             search_url = guard.runtime.config.get('search_url')
             if search_url:
-                allowed = {'boss': (('www.zhipin.com','zhipin.com'), ('/web/geek/job','/web/geek/jobs')),
+                allowed = {'51job': (('we.51job.com',), ('/pc/search',)), 'boss': (('www.zhipin.com','zhipin.com'), ('/web/geek/job','/web/geek/jobs')),
                            'liepin': (('www.liepin.com','liepin.com'), ('/zhaopin/',)),
                            'zhilian': (('www.zhaopin.com','zhaopin.com'), ('/jobs/',))}
                 hosts, paths = allowed.get(source, ((), ()))
