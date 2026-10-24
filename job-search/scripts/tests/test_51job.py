@@ -3,7 +3,7 @@ from pathlib import Path
 from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from adapters.extract_51job import search_url,job_id_from_url
-from collect import validate_collected_detail,Guard,StopSite
+from collect import validate_collected_detail,Guard,StopSite,Proxy
 from workflow import canonical_url
 class Job51Tests(unittest.TestCase):
  def test_search_preserves_filters(self):
@@ -44,5 +44,12 @@ class Job51Tests(unittest.TestCase):
    g=Guard(Path(d),'51job');p=Page()
    with self.assertRaises(StopSite):g.blocking_reason(p)
    self.assertEqual(p.count,3)
+ def test_missing_element_survives_proxy(self):
+  class NoneElement:
+   def __bool__(self):return False
+   def __getattr__(self,key):raise RuntimeError('missing')
+  class Page:url='https://we.51job.com/pc/search'
+  el=NoneElement();self.assertIs(Proxy(Page(),None).wrap(el),el)
 if __name__=='__main__':unittest.main()
+
 

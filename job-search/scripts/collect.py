@@ -202,6 +202,8 @@ class Proxy:
         self.search_home = str(self._page.url)
 
     def wrap(self, value):
+        if type(value).__name__ == "NoneElement":
+            return value
         if isinstance(value, list):
             return [self.wrap(item) for item in value]
         if isinstance(value, tuple):
