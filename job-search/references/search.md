@@ -55,3 +55,5 @@ selectors.json 含 source、title/company/description 三个 CSS 选择器和可
 当前搜索页右侧为推荐区，完整 JD 在点击 `.joblist .joblist-item-job .jname` 后打开的独立详情页。卡片公司位于卡片内部 `.joblist-item-right`。只点击标题，不点击投递或沟通。列表 DOM 的 sensorsdata 提供岗位 ID；详情实际 URL 的数字 ID 必须一致，再以统一协议校验标题、公司与正文。正文读取 `.job_msg.inbox > div:first-child`，排除后面的关键词和推荐。保留原始卡片身份，不能以详情字段覆盖卡片后自证匹配。
 
 分页使用 `.el-pagination .btn-next`，要求岗位 ID 序列变化；不变报错，不把旧页视为翻页成功。空列表为读取未就绪，尚未验证明确零结果标识。读取失败留 detail_read_error；验证暂停保留浏览器。此版本只支持采集，未实现51job自动投递。
+
+Moka / 北森企业招聘系统的采集核心、调用协议及当前未实测范围见 [ATS 适配设计](ats.md)。
