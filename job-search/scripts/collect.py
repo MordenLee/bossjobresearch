@@ -270,7 +270,8 @@ def validate_collected_detail(item, source):
     item = dict(item, detail_state='PENDING', detail_identity_verified=False)
     data = item.get('panel_detail_evidence') if source == 'boss' else item.get('collected_detail_evidence')
     if (((source == 'boss' and item.get('jd_source') == 'search_panel')
-            or (source == 'liepin' and item.get('jd_source') == 'detail_page'))
+            or (source == 'liepin' and item.get('jd_source') == 'detail_page')
+            or (source == 'zhilian' and item.get('jd_source') == 'search_panel'))
             and isinstance(data, dict) and isinstance(data.get('truncated'), bool)
             and data.get('description') == item.get('jd_description')):
         from detail import apply_detail
@@ -370,7 +371,8 @@ def _collect(args):
             search_url = guard.runtime.config.get('search_url')
             if search_url:
                 allowed = {'boss': (('www.zhipin.com','zhipin.com'), ('/web/geek/job','/web/geek/jobs')),
-                           'liepin': (('www.liepin.com','liepin.com'), ('/zhaopin/',))}
+                           'liepin': (('www.liepin.com','liepin.com'), ('/zhaopin/',)),
+                           'zhilian': (('www.zhaopin.com','zhaopin.com'), ('/jobs/',))}
                 hosts, paths = allowed.get(source, ((), ()))
                 if urlsplit(search_url).hostname not in hosts or urlsplit(search_url).path not in paths:
                     raise ValueError('搜索入口必须是已核实的本站职位搜索页')

@@ -39,3 +39,11 @@ selectors.json 含 source、title/company/description 三个 CSS 选择器和可
 猎聘正文从详情页 `[data-selector="job-intro-content"]` 读取，主标题限定在 `.job-apply-content`，避免混入相关推荐。保存 `collected_detail_evidence`，复用 `detail.apply_detail` 的 URL、标题、公司、完整性检查；匿名雇主或名称变化留身份待核实，保留原文，不冒充 READY。跟踪参数不参与 `/job/<id>.shtml` 与 `/a/<id>.shtml` 的稳定身份；两种路径不合并。
 
 列表无卡片报读取未就绪，不等于无岗位。详情失败保存 `detail_read_error`；登录/验证暂停保留窗口。每条完成后通过采集入口立即落盘。该适配仅验证采集，不能据此声称支持猎聘自动投递。
+
+## 智联新版分栏页
+
+首页搜索输入为 `.search-wrapper__input`，按钮为 `.search-wrapper__button`；真实搜索会进入 `/jobs/?jl=…&kw=…`。先在页面确认地区，再将实际 URL 写入 `runtime-config.json.search_url`。适配器替换 kw 时保留平台筛选，不能将旧 `/sou/` 和 `.joblist-box__item` 当成新版页面。
+
+列表使用 `.job-list-panel .job-card`，详情在 `.job-detail-panel`。逐条点击卡片本体，读取右侧标题、公司、正文及“查看更多职位信息”的 href，不点击该链接或投递按钮。列表没有公开岗位链接，因此先核对卡片索引与可见字段，等待选中状态、标题、公司、详情URL和正文稳定后，再取得稳定岗位身份；切换时仍沿用旧链接或旧正文则留错误，不跨卡片复用。详情再进入统一校验。相同标题和公司不代表同一 HC。
+
+当前验证范围为已加载的一屏列表，适配器不会声称 max_pages 页已经读取。追加滚动、更多页或新布局需要先核实控件；空列表记为读取异常，尚未配置智联明确零结果标识。登录标识可由任务核实 `.c-login__top__name` 后配置，避免取隐藏菜单作为登录证据。
