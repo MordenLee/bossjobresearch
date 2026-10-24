@@ -119,7 +119,7 @@ def collect(site, fetch_page, run_dir, **options):
         return _collect(site, fetch_page, run_dir, **options)
 
 
-def _collect(site, fetch_page, run_dir, *, keyword='', max_pages=10, detail_reader=None):
+def _collect(site, fetch_page, run_dir, *, keyword='', max_pages=10, detail_reader=None, page_reader=None):
     """fetch_page(url, json_body)->dict; detail_reader(job)->independent detail evidence.
 
     Caller provides rate limits, verified endpoints, challenge/login handling, timeouts.
@@ -129,7 +129,7 @@ def _collect(site, fetch_page, run_dir, *, keyword='', max_pages=10, detail_read
     if max_pages < 1:
         raise ValueError('max_pages must be positive')
     # Moka keyword parameter is not verified. Do not silently pretend to filter.
-    if site.platform == 'moka' and keyword:
+    if page_reader is None and site.platform == 'moka' and keyword:
         raise ValueError('Moka server keyword filtering not verified; collect then screen')
     root = Path(run_dir)
     root.mkdir(parents=True, exist_ok=True)
@@ -144,10 +144,17 @@ def _collect(site, fetch_page, run_dir, *, keyword='', max_pages=10, detail_read
                   unique_fetched=0, reported_total=None, complete=False, status='RUNNING', errors=[])
     try:
         for number in range(1, max_pages + 1):
-            url, body = adapter.request(site, number, keyword)
-            response = fetch_page(url, body)
-            # Do not persist response envelopes (which may carry session material).
-            page = adapter.parse(response)
+            if page_reader is not None:
+                page = page_reader(number, keyword)
+                if not isinstance(page, Page):
+                    raise ATSError('DOM_READER_MUST_RETURN_PAGE')
+                records(page.rows)
+                total_count(page.total)
+            else:
+                url, body = adapter.request(site, number, keyword)
+                response = fetch_page(url, body)
+                # Offline/legacy parsing path; DP entry never uses this transport.
+                page = adapter.parse(response)
             previous_total = result['reported_total']
             if previous_total is not None and page.total != previous_total:
                 raise ATSError('TOTAL_CHANGED_DURING_SCAN')

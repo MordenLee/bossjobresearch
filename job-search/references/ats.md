@@ -2,6 +2,30 @@
 
 `scripts/ats.py` 是可离线测试的采集核心，不是已完成现场验证的官网爬虫。不注册到 collect.py 的浏览器站点列表；现有 BOSS/猎聘/智联/51job 路径不变。协议映射参考公开源码并独立实现，当前公司接口、权限和字段仍需现场确认。
 
+## 默认入口：用户登录后的 DrissionPage
+
+真实网站采集使用 `scripts/ats_browser.py::collect_browser`。它不调用 HTTP 传输或页面 fetch/XHR，而将受 Guard 保护的 DP Proxy 交给已核实的 DOM 适配器。下面的 fetch_page 协议仅保留作离线响应回放/旧解析兼容，不是默认联网路径。
+
+1. 为任务创建独立 Chrome profile，打开企业招聘入口，保存归属核实的 browser.json。接回只使用 connect_owned，不自动启动其他浏览器或接管日常 profile。
+2. 用户自己完成账号、短信、扫码等登录；主 Agent 从实际页面核实可见登录标识，写 runtime-config.json。session.hosts 必须是当前租户的精确域名，signed_in_selectors 必须为已验证的可见用户标识，不能用全站通用导航替代。不导出 Cookie、密码或验证码。
+3. 运行前、每页读取前后、每条详情读取前后均核实登录。未知/失效就保存 Runtime PAUSED；采集中的暂停会保留 jobs.json 和 coverage.json，浏览器保持开启。
+4. 用户明确回复完成后，沿用 states.md 的 token 绑定 continue.json 恢复流程；程序不会因登录标识出现就自动确认。恢复再次核实登录，通过后从第一页重放去重，保留已经读取的正文。
+5. 同租户详情新标签通过 Proxy 获取，仍检查验证状态；详情回调返回前回到租户列表。跨域登录由用户完成并返回原租户页面，不把登录中心或另一租户当作本企业登录成功。
+
+```python
+from ats import Site, Page
+from ats_browser import collect_browser
+
+# 具体 list_reader/detail_reader 来自已现场核实的企业 DOM 适配器。
+# list_reader(proxy, page_number, keyword) -> Page(rows, total)
+# rows 用 Moka id/title 或北森 Id/JobAdName 字段；ID必须来自真实DOM证据。
+# detail_reader(proxy, job) -> 独立详情证据（字段见下文）。
+result = collect_browser(site, run_dir, port, list_reader, detail_reader,
+                         keyword='数据分析', max_pages=5)
+```
+
+任务配置增加 pacing：delay_min、delay_max、batch_size、batch_rest；默认30–45秒、每5次操作休息90秒。纯DOM读取使用 proxy.read_js，点击/导航使用 Proxy 方法。每家公司页面选择器仍需现场核实，本版本没有声称已完成 Moka/北森真实站点的登录和JD采集验收。
+
 ## 职责
 
 - `Site`：招聘系统、租户、公司、HTTPS origin、Moka org/site ID、北森社招/校招类别。任务配置保存，不放个人简历、Cookie、筛选偏好。
