@@ -70,7 +70,11 @@ def canonical_url(value):
     zhilian_job = p.hostname in ('www.zhaopin.com', 'zhaopin.com') and bool(re.fullmatch(r'/jobdetail/[A-Za-z0-9]+\.htm', p.path))
     job51 = p.hostname == 'jobs.51job.com' and bool(re.fullmatch(r'/[^/]+/\d+\.html', p.path))
     query = '' if job51 or zhilian_job or liepin_job or p.hostname in ('www.zhipin.com', 'zhipin.com') and p.path.startswith('/job_detail/') else p.query
-    return urlunsplit((p.scheme.lower(), p.netloc.lower(), p.path.rstrip('/'), query, ''))
+    moka_job = (p.hostname == 'app.mokahr.com' and
+                re.fullmatch(r'/(?:apply|social-recruitment|campus-recruitment)/[^/]+/\d+/?', p.path) and
+                re.fullmatch(r'/job/[A-Za-z0-9-]+/?', p.fragment.split('?')[0]))
+    fragment = p.fragment.split('?')[0].rstrip('/') if moka_job else ''
+    return urlunsplit((p.scheme.lower(), p.netloc.lower(), p.path.rstrip('/'), '' if moka_job else query, fragment))
 
 
 def same_job(left, right):

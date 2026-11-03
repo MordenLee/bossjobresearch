@@ -1,0 +1,30 @@
+{
+  "site": "amazon",
+  "company": "Amazon",
+  "company_names": ["Amazon"],
+  "hosts": ["www.amazon.jobs"],
+  "list_url": "https://www.amazon.jobs/en/search",
+  "layout": "link_details",
+  "company_selector": ".footer .footer-nav",
+  "card_selector": ".job-tile .job[data-job-id]",
+  "id_url_pattern": "/en/jobs/(\\d+)/",
+  "title_selector": "h3.job-title a.job-link",
+  "link_selector": "h3.job-title a.job-link",
+  "location_selector": ".location-and-id li.text-nowrap",
+  "location_all": true,
+  "list_fields": {"published_at": ".posting-date"},
+  "list_field_map": ["published_at"],
+  "detail_path_pattern": "/en/jobs/\\d+/[^/]+/?",
+  "detail_title_selector": "#job-detail h1.title",
+  "detail_description_selector": "#job-detail-body .content > .section",
+  "detail_description_all": true,
+  "required_jd_labels": ["Description", "Basic Qualifications", "Preferred Qualifications"],
+  "pagination": "未验证；当前配置仅采集一页，不配置猜测的下一页控件",
+  "verification": {
+    "date": "2026-11-03",
+    "list": "DP实际读取中国筛选列表，显示250条、当前页10个唯一岗位；无筛选默认URL尚未单独验证。地区由任务配置覆盖list_url。",
+    "detail": "配置实测当前页10条列表、1份完整JD（Job ID 10576519，5212字符），保留全部3个地点。JD在content的section中，空section.description不能单独作为正文。公司标识来自实际.footer .footer-nav。",
+    "search": "输入实际值已确认；原生回车和搜索按钮均未证实结果提交。暂不提供自动关键词搜索配置。",
+    "application": "未测试，不点击Apply now"
+  }
+}

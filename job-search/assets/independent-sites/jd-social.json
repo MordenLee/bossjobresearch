@@ -1,0 +1,51 @@
+{
+  "site": "jd-social",
+  "company": "京东",
+  "company_names": [
+    "京东版权所有"
+  ],
+  "hosts": [
+    "zhaopin.jd.com"
+  ],
+  "list_url": "https://zhaopin.jd.com/web/job/job_info_list/3",
+  "layout": "inline_sections",
+  "allow_pending_inline_descriptions": true,
+  "require_description_visible": true,
+  "company_selector": ".footer",
+  "card_selector": ".table-main > .line",
+  "id_selector": "input[id='requemtId']",
+  "id_attribute": "value",
+  "id_pattern": "^([0-9]+)$",
+  "job_url_scope": "list_page",
+  "title_selector": ".info .post",
+  "description_selector": ".detail",
+  "inline_expand_selector": ".info .post .drop-down",
+  "required_jd_labels": [
+    "岗位描述",
+    "任职要求"
+  ],
+  "list_fields": {
+    "business_unit": ".info > span:nth-of-type(2)",
+    "function": ".info > span:nth-of-type(3)",
+    "location": ".info > span:nth-of-type(4)",
+    "published_at": ".info > span:nth-of-type(5)"
+  },
+  "list_field_map": [
+    "business_unit",
+    "function",
+    "location",
+    "published_at"
+  ],
+  "search_selector": "#search-key",
+  "search_action": "button",
+  "search_submit_selector": ".search-bar .search-btn",
+  "pagination": "配置仅验证当页搜索和原生展开；分页尚未验证",
+  "verification": {
+    "date": "2026-10-27",
+    "evidence": "实际社招列表每行有requemtId，.detail包含完整JD，岗位标题为折叠展开控件",
+    "identity": "source_id来自每张卡片的真实DOM值；尚无独立详情链接，job_url留空，source_page_url保留实际列表地址，不能拼造详情URL",
+    "application": "未触碰.apply-btn",
+    "status": "EXPERIMENTAL_READ_ERROR",
+    "limitation": "搜索已生效；点击实际下拉箭头仍未展开，尚不能声称完整采集已验证。"
+  }
+}

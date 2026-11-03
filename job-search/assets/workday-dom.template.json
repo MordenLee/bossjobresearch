@@ -1,0 +1,9 @@
+{
+  "list_url":"https://REPLACE.wd5.myworkdayjobs.com/REPLACE_SITE",
+  "tenant":"REPLACE_VERIFIED_TENANT",
+  "company":"REPLACE_VERIFIED_COMPANY",
+  "access_mode":"authenticated",
+  "public_access":{"evidence":""},
+  "next_selector":"css:button[aria-label=\"next\"]",
+  "pacing":{"delay_min":30,"delay_max":45,"batch_size":5,"batch_rest":90}
+}

@@ -8,9 +8,5 @@
       "css:.nav-figure"
     ]
   },
-  "quota": {
-    "minimum_remaining_percent": 5,
-    "max_age_seconds": 900,
-    "check_after_records": 100
-  }
+  "quota": {}
 }

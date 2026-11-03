@@ -1,0 +1,28 @@
+{
+  "site": "fydeos",
+  "company": "燧炻创新/FydeOS",
+  "company_names": ["FydeOS"],
+  "hosts": ["fydeos.com"],
+  "list_url": "https://fydeos.com/career/",
+  "layout": "link_details",
+  "company_selector": ".awb-menu__main-a .menu-text",
+  "card_selector": "article.fusion-portfolio-post",
+  "id_attribute": "id",
+  "id_pattern": "post-(\\d+)$",
+  "title_selector": "h2.entry-title a",
+  "link_selector": "h2.entry-title a",
+  "location_selector": ".fusion-portfolio-meta",
+  "detail_path_pattern": "/job-items/[a-z-]+/index\\.html",
+  "detail_title_source": "document_title",
+  "detail_title_suffix": "\\s*-\\s*FydeOS$",
+  "detail_description_selector": ".fusion-text-1",
+  "required_jd_labels": ["关于这个岗位", "关于你"],
+  "pagination": "当前career页5条职位；无分页控件；不推断全公司或归档页已穷尽",
+  "verification": {
+    "date": "2026-10-27",
+    "list": "DP现场5个article.fusion-portfolio-post；h2为职位名，meta为地点，post数字ID来自DOM",
+    "detail": "操作系统工程师详情：document.title匹配列表，.fusion-text-1含完整正文，排除其它岗位推荐",
+    "search": "当前页面未发现关键词输入框；不模拟搜索或擅自构造接口",
+    "application": "邮件申请；采集器不发送邮件"
+  }
+}

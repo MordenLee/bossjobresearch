@@ -1,0 +1,35 @@
+{
+  "site": "airbnb",
+  "company": "Airbnb",
+  "company_names": ["Airbnb"],
+  "hosts": ["careers.airbnb.com"],
+  "list_url": "https://careers.airbnb.com/positions/",
+  "layout": "link_details",
+  "company_selector": "footer",
+  "card_selector": "ul.job-list > li",
+  "id_url_pattern": "/positions/(\\d+)/",
+  "title_selector": "a[href*='/positions/']",
+  "link_selector": "a[href*='/positions/']",
+  "location_selector": "div.justify-end",
+  "list_fields": {
+    "function": "div.font-medium span:first-child",
+    "work_flexibility": "div.font-medium span:last-child"
+  },
+  "detail_path_pattern": "/positions/\\d+/",
+  "detail_title_selector": ".job-page-banner h1",
+  "detail_description_selector": "#job-detail-panel",
+  "required_jd_labels": ["Your Expertise"],
+  "search_selector": "input.facetwp-search",
+  "search_action": "enter",
+  "next_selector": ".facetwp-page.next",
+  "active_page_selector": ".facetwp-page.active",
+  "page_attribute": "data-page",
+  "pagination": "现场观察10条/页和下一页控件；执行时校验岗位ID变化及活动页码递增",
+  "verification": {
+    "date": "2026-10-27",
+    "list": "DP可见189个岗位及当前页10个真实详情链接；数量为该时点页面证据，不写成代码常量",
+    "detail": "公开详情有匹配h1与完整#job-detail-panel；Application面板及投递按钮不采集操作",
+    "search": "DP输入Engineer回车，输入值、URL及岗位ID序列均变化；任务原始证据单独保存",
+    "application": "未测试，不点击Apply或Application"
+  }
+}

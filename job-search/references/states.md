@@ -42,7 +42,7 @@ browser.json 含 address、tab_id、run_dir、ownership_verified 和 profile。�
 
 ## 额度与升级
 
-runtime-config.json 可配置 quota；未配置时不伪造实时计量。额度快照需 source=mcp__codex_app__get_usage_limits、checked_at_epoch、remaining_percent、checked_processed_total，使用当前工作的同一额度桶。来源、时间或处理量不合即暂停。离线 Reviewer 调度前后由主 Agent 检查。
+runtime-config.json 可配置 quota；模板默认关闭，不预设个人停止阈值。minimum_remaining_percent 来自当前任务，未提供时只校验快照时效、不默认按某个百分比停止；max_age_seconds 和 check_after_records 可配置检查频率。未配置时不伪造实时计量。额度快照需 source=mcp__codex_app__get_usage_limits、checked_at_epoch、remaining_percent、checked_processed_total，使用当前工作的同一额度桶。来源、时间或处理量不合即暂停。离线 Reviewer 调度前后由主 Agent 检查。
 
 ```text
 python scripts/runtime.py --run-dir <run> refresh-quota --snapshot <真实额度快照.json> --processed <当前累计处理数>

@@ -116,9 +116,14 @@ class Guard:
             if re.search(r'/(?:login|passport)(?:[/?#]|$)', url): self.detected_pause_reason = 'LOGIN_REQUIRED'
             return '当前页面需要登录或安全验证'
         phrases = ('扫码登录', '扫码登陆', '扫描二维码登录', '请完成验证', '请先完成登录',
-                   '请先登录', '拖动滑块', '滑动验证', '安全验证', '人机验证',
+                   '请先登录', '拖动滑块', '滑动验证',
                    '点击完成验证', '点击验证', '短信验证码', '请使用手机扫码', '请登录后查看')
-        if any(phrase in text for phrase in phrases):
+        # Security job descriptions can mention verification as a skill or duty.
+        # Bare nouns are not a prompt; URL guards and explicit UI instructions remain.
+        challenge_prompt = re.search(
+            r'(?m)^\s*(?:安全验证|人机验证)(?:\s*$|\s*[：:（(]|失败|错误|中|请|加载)'
+            r'|(?:请|需要|必须|完成|进行|通过).{0,12}(?:安全验证|人机验证)(?:[。！!：:，,]|后|才能|$)', text)
+        if any(phrase in text for phrase in phrases) or challenge_prompt:
             if any(x in text for x in ('扫码登录','扫码登陆','请先登录','请先完成登录','请登录后查看')):
                 self.detected_pause_reason = 'LOGIN_REQUIRED'
             return '页面出现扫码、登录或人工验证提示'

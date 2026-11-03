@@ -49,6 +49,16 @@ python -m pip install -r job-search/scripts/requirements.txt
 
 主要脚本位于 `job-search/scripts/`：`collect.py`、`detail.py`、`policy.py`、`workflow.py`、`runtime.py`、`export_csv.py`、`contact.py` 和 `form.py`。具体参数参见各脚本 `--help` 与相应文档。
 
+独立企业官网使用 `independent_dom.py` 和逐站验证的 DOM 配置；当前现场验收包括豆瓣、FydeOS、Airbnb、帆软、吉利Moka品牌入口、Amazon。它们覆盖同页完整 JD、链接详情、卡片点击新标签详情、可见关键词搜索和分页；每站实际验证范围不同，目录中的其他公司不因此自动变成已支持站点。单条内联正文缺失可保留PENDING，完整JD另行计数。配置、验证边界和公开页面授权方式见 [独立官网采集](job-search/references/independent-sites.md)。
+
+```sh
+python job-search/scripts/independent_dom.py --run-dir <任务目录> --config job-search/assets/independent-sites/airbnb.json --output <新批次目录> --keyword Engineer --max-pages 2 --limit 2
+```
+
+命令仅连接归属核实的任务 Chrome，通过 DP 操作页面；遇登录、验证、拒绝访问保存暂停，保留浏览器。列表发现数、已读完整 JD 数及采集范围分开记录；此命令不提交申请。
+
+Workday 使用独立租户配置，已对 NVIDIA 和飞利浦验证搜索、列表及详情；NVIDIA 另验证了原生地区筛选。Amazon 已验证列表和详情，关键词搜索与分页仍待验证。加载模式、断点恢复和覆盖边界见 [Workday 采集](job-search/references/workday.md)。
+
 ## 验证
 
 ```sh
@@ -57,7 +67,7 @@ python -m unittest discover -s job-search/scripts/tests -v
 python tools/check_package.py
 ```
 
-**102 项离线测试通过**，覆盖右侧JD切换及身份校验、正文完整性、偏好模板中立性、输入版本、规则边界、暂停恢复、未知操作结果、CSV 人工字段保留及命令行衔接。另已完成 BOSS 登录、原生规模筛选、岗位采集、完整 JD 核对、Reviewer 审阅和 CSV 交付的真实只读试跑；右侧采集核心已用两条真实卡片验证不新增标签。
+**216 项离线测试通过（2026-11-03本地回归）**，覆盖右侧JD切换及身份校验、正文完整性、偏好模板中立性、输入版本、规则边界、暂停恢复、未知操作结果、CSV 人工字段保留及命令行衔接，也包括独立官网的公司/岗位身份、空页、重复ID、卡片详情ID一致性、搜索分页状态及JD安全术语误报校验。另已完成 BOSS 登录、原生规模筛选、岗位采集、完整 JD 核对、Reviewer 审阅和 CSV 交付的真实只读试跑；右侧采集核心已用两条真实卡片验证不新增标签。
 
 网站 DOM 和风控表现会变化。默认登录标识仅配置了 BOSS；其他平台需核实当前页面并配置。BOSS优先在搜索页逐条读取右侧JD，核对岗位ID并统一验证URL、公司、标题及正文完整性；READY的正文直接用于审阅，未通过的岗位才单独补读详情。猎聘支持新版列表与详情正文采集、保留搜索页筛选条件、稳定岗位去重、统一身份校验及原始 JD CSV 导出；匿名雇主无法核对时保留正文并标记待核实。其他旧适配器仍在正式审阅前统一核验。
 

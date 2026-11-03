@@ -1,0 +1,29 @@
+{
+  "site": "douban",
+  "company": "豆瓣",
+  "company_names": ["北京豆网科技有限公司"],
+  "hosts": ["jobs.douban.com"],
+  "list_url": "https://jobs.douban.com/",
+  "layout": "inline_sections",
+  "company_selector": "#footer #icp",
+  "card_selector": "div.mod.position",
+  "id_selector": "h3[id^=position-]",
+  "id_attribute": "id",
+  "title_selector": "h3[id^=position-]",
+  "description_selector": "div.bd",
+  "required_jd_labels": ["职位描述", "职位要求"],
+  "employer_pattern": "该岗位属于([^，,（）]+)",
+  "field_patterns": {
+    "education": "(?:本科|硕士|博士|大专)(?:及以上)?(?:学历)?",
+    "experience": "[0-9]+(?:[~～—至-][0-9]+)?年[^；。\\n]*工作经验",
+    "location": "办公地点位于([^）\\n]+)"
+  },
+  "sitewide_location_pattern": "如无特别说明，工作地点均位于([^。]+)",
+  "pagination": "当前社会招聘页全部JD以内联章节呈现；无分页控件，非全公司穷尽证明",
+  "verification": {
+    "date": "2026-10-27",
+    "evidence": "DP现场probe.json：3个.mod.position，h3有稳定职位锚点，.bd含完整描述和要求",
+    "search": "此社招页未发现站内搜索控件，不模拟不存在的搜索功能",
+    "application": "未测试；本适配器只采集"
+  }
+}

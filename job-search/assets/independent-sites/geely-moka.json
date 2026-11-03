@@ -1,0 +1,36 @@
+{
+  "site": "geely-moka",
+  "company": "吉利汽车",
+  "company_names": ["吉利汽车集团"],
+  "hosts": ["autojob.geely.com"],
+  "list_url": "https://autojob.geely.com/social-recruitment/geely/102042/#/jobs",
+  "layout": "inline_sections",
+  "allow_pending_inline_descriptions": true,
+  "company_selector": "a[href^='#/job/'] [class^='info-'] .no-adaptive-tooltip",
+  "card_selector": "a[href^='#/job/']",
+  "id_attribute": "href",
+  "id_pattern": "^#/job/([a-f0-9-]+)$",
+  "id_url_pattern": "#/job/([a-f0-9-]+)$",
+  "detail_path_pattern": "/social-recruitment/geely/102042/",
+  "link_self": true,
+  "title_selector": "[class^='title-']",
+  "description_selector": "[class^='job-description-']",
+  "list_fields": {
+    "salary": "[class^='salary-']",
+    "published_at": "[class^='published-at-']",
+    "hiring_company": "[class^='info-'] [class^='sd-foundation-body-secondary-']:nth-of-type(1) .no-adaptive-tooltip",
+    "employment_type": "[class^='info-'] [class^='sd-foundation-body-secondary-']:nth-of-type(2) .no-adaptive-tooltip",
+    "function": "[class^='info-'] [class^='sd-foundation-body-secondary-']:nth-of-type(3) .no-adaptive-tooltip",
+    "location": "[class^='info-'] [class^='sd-foundation-body-secondary-']:nth-of-type(4) .no-adaptive-tooltip"
+  },
+  "list_field_map": ["salary", "published_at", "hiring_company", "employment_type", "function", "location"],
+  "search_selector": "input[placeholder='搜索职位关键词']",
+  "search_action": "enter",
+  "pagination": "本配置限定当前结果页；尚未验证翻页，不代表1637条全站岗位已采集",
+  "verification": {
+    "date": "2026-10-27",
+    "evidence": "DP现场30个#/job/岗位锚点，卡片内job-description完整正文；品牌域名使用Moka recruitment-web-client",
+    "field_order_scope": "仅此页面现场确认：公司/性质/职能/地点四个metadata div，保留原字段文本和选择器；不是Moka通用位置假设",
+    "application": "未操作投递按钮"
+  }
+}

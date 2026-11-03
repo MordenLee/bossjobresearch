@@ -1,0 +1,8 @@
+{
+  "host": "https://example.zhiye.com",
+  "list_url": "https://example.zhiye.com/social",
+  "tenant": "example",
+  "company": "REPLACE_WITH_VERIFIED_COMPANY",
+  "public_access": {"authorized": false, "evidence": ""},
+  "pacing": {"delay_min": 30, "delay_max": 45, "batch_size": 5, "batch_rest": 90}
+}

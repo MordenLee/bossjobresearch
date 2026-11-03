@@ -22,6 +22,9 @@ class LoginSession:
         host = urlsplit(site.host).hostname
         if self.session.get('hosts') != [host] or not self.session.get('signed_in_selectors'):
             raise ValueError('Configure the exact tenant host and verified visible login selectors')
+        self.tenant_path = self.session.get('tenant_path', '').rstrip('/')
+        if site.platform == 'moka' and not self.tenant_path.startswith('/'):
+            raise ValueError('Moka shared host requires verified tenant_path')
         pacing = config.get('pacing', {})
         self.guard = Guard(self.root, site.platform,
                            delay_min=pacing.get('delay_min',30), delay_max=pacing.get('delay_max',45),
@@ -34,7 +37,9 @@ class LoginSession:
     def check(self, phase, **checkpoint):
         self.guard.runtime.commit(checkpoint={'phase':phase, **checkpoint})
         self.guard.check(self.raw, force=True)
-        if urlsplit(self.raw.url).netloc != urlsplit(self.site.host).netloc:
+        current = urlsplit(self.raw.url)
+        if (current.netloc != urlsplit(self.site.host).netloc or
+                self.tenant_path and current.path.rstrip('/') != self.tenant_path):
             self.guard.pause('当前不是配置的企业招聘站；请返回该企业并确认登录', self.raw, 'LOGIN_UNKNOWN')
         result = inspect_login(self.raw, self.site.platform, self.session)
         write(self.root/'login-check.json', result)

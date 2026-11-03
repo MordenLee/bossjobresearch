@@ -195,6 +195,14 @@ class Contracts(unittest.TestCase):
         runtime=Runtime(self.root)
         with self.assertRaises(ValueError):runtime.quota_gate(0)
         self.assertEqual(runtime.load()['pause_reason'],'QUOTA_CHECK')
+
+    def test_fresh_quota_without_task_threshold_does_not_inherit_personal_limit(self):
+        write(self.root/'runtime-config.json',{'quota':{'max_age_seconds':10}})
+        write(self.root/'quota-state.json',{'source':'mcp__codex_app__get_usage_limits','checked_at_epoch':time.time(),
+              'remaining_percent':1,'checked_processed_total':0})
+        runtime=Runtime(self.root)
+        runtime.quota_gate(0)
+        self.assertNotEqual(runtime.load()['task_state'],'PAUSED')
     def test_low_quota_cannot_be_cleared_by_continue(self):
         write(self.root/'runtime-config.json',{'quota':{ 'minimum_remaining_percent':10}})
         write(self.root/'quota-state.json',{'source':'mcp__codex_app__get_usage_limits','checked_at_epoch':time.time(),

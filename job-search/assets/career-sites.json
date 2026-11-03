@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-10-27",
+  "sites": {
+    "goldman": {"company":"高盛","url":"https://higher.gs.com/results?&page=1&sort=RELEVANCE","evidence_level":"职位列表可读；显示20/715；交互未验证"},
+    "iherb": {"company":"iHerb","url":"https://careers.iherb.com/global/en/search-jobs","evidence_level":"职位列表可读；显示35条；交互未验证"},
+    "microsoft": {"company":"微软","url":"https://careers.microsoft.com/v2/global/en/locations/gcr.html","evidence_level":"岗位与职责可读；逐条完整性和交互未验证"},
+    "kpmg": {"company":"毕马威","url":"https://kpmg.com/cn/zh/careers/experienced-hires.html","evidence_level":"社招介绍页可读；下游列表未验证"},
+    "morgan-stanley": {"company":"摩根士丹利","url":"https://www.morganstanley.com/people-opportunities","evidence_level":"页面外壳可读；职位未就绪"},
+    "rippling": {"company":"Rippling","url":"https://www.rippling.com/careers","evidence_level":"招聘介绍可读；下游列表未验证"},
+    "thoughtworks": {"company":"Thoughtworks","url":"https://www.thoughtworks.com/careers/jobs","evidence_level":"筛选外壳可读；列表停留Loading"},
+    "ubs": {"company":"瑞银","url":"https://www.ubs.com/global/en/careers.html","evidence_level":"招聘介绍可读；下游列表未验证"},
+    "walmart": {"company":"沃尔玛","url":"https://www.walmart.cn/joinus-sh/","evidence_level":"中国社招介绍可读；下游列表未验证"},
+    "atlassian": {"company":"Atlassian","url":"https://www.atlassian.com/company/careers","evidence_level":"招聘介绍可读；下游列表未验证"},
+    "automattic": {"company":"Automattic","url":"https://automattic.com/work-with-us/","evidence_level":"招聘介绍可读；下游列表未验证"}
+  }
+}

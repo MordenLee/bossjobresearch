@@ -134,6 +134,9 @@ class Runtime:
         policy = self.config.get('quota')
         if not policy:
             return
+        minimum = policy.get('minimum_remaining_percent')
+        if minimum is not None and (type(minimum) not in (int, float) or not 0 <= minimum <= 100):
+            raise ValueError('额度停止阈值必须由任务配置为0到100的数值')
         snapshot_path = self.root / 'quota-state.json'
         q = read(snapshot_path) if snapshot_path.exists() else {}
         checked = q.get('checked_at_epoch', 0)
@@ -146,7 +149,7 @@ class Runtime:
                 or processed - q['checked_processed_total'] >= policy.get('check_after_records', 100)):
             self.pause('QUOTA_CHECK', processed=processed)
             raise ValueError('需主 Agent 查询并保存当前真实额度快照')
-        if q['remaining_percent'] < policy.get('minimum_remaining_percent', 5):
+        if minimum is not None and q['remaining_percent'] < minimum:
             self.pause('QUOTA_LOW', processed=processed)
             raise ValueError('实际剩余额度低于当前任务阈值')
 

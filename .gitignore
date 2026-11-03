@@ -21,3 +21,14 @@ task-events.jsonl
 task-state.json
 status.json
 continue.json
+runtime-config.json
+public-access.json
+login-check.json
+jobs.json
+reviews.json
+screening.json
+todos.json
+*.pdf
+*.doc
+*.docx
+*.xlsx
