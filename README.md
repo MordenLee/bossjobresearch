@@ -22,6 +22,8 @@ python -m pip install -r job-search/scripts/requirements.txt
 
 主 Agent 应按 Skill 文档准备候选资料、任务策略、运行目录与登录检查。运行数据保存在独立工作目录；仓库提供的是通用模板，不含候选人、招聘账号、Cookie 或真实岗位会话。
 
+调用后先执行[启动检查](job-search/references/profile.md#启动检查)：复用当前任务已确认的简历和需求，集中询问缺少的必要信息，展示本轮范围与授权摘要后开始。薪资和工作偏好可暂留空；续跑只核实变化项，简历不足时不生成个性化推荐。无需把个人资料放进 skill 安装目录。
+
 ## 核心流程
 
 `简历及需求 → 单站采集 → 完整 JD → Reviewer 审阅 → 校验及待办 → CSV → 授权执行`
