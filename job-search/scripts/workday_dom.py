@@ -11,6 +11,7 @@ from collect import Guard, Proxy, UserActionRequired, StopSite
 from session import connect_owned
 from runtime import writer_lock
 from moka_dom import wait_stable, usable
+from page_wait import wait_page, PageNotReady
 from workflow import read, write, now
 from export_csv import export, JOB_FIELDS
 
@@ -24,7 +25,7 @@ let root=boundary?.querySelector('[data-automation-id="jobPostingHeader"]');
 while(root && !root.querySelector('[data-automation-id="jobPostingDescription"]'))root=root.parentElement;
 if(!boundary?.contains(root))root=null;
 const text=id=>root?.querySelector(`[data-automation-id="${id}"]`)?.innerText||'';
-return {url:location.href,title:text('jobPostingHeader'),jd:text('jobPostingDescription'),
+return {url:location.href,text:document.body?.innerText||'',title:text('jobPostingHeader'),jd:text('jobPostingDescription'),
 fields:[...(root?.querySelectorAll('dl')||[])].map(e=>({label:e.querySelector('dt')?.innerText||'',values:[...e.querySelectorAll('dd')].map(d=>d.innerText)})),
 locations:text('locations'),posted_on:text('postedOn'),time_type:text('timeType'),requisition:text('requisitionId')};'''
 FIELDS = JOB_FIELDS + ['job_id','requisition_id','employment_type','published_at','search_keyword']
@@ -57,6 +58,8 @@ def validate_config(c):
     if c.get('access_mode')=='public' and not c.get('public_access',{}).get('evidence','').strip():
         raise ValueError('公开访问必须记录用户授权依据')
     pacing=c.get('pacing',{})
+    if isinstance(c.get('readiness_timeout',120),bool) or not isinstance(c.get('readiness_timeout',120),(int,float)) or not 30<=c.get('readiness_timeout',120)<=300:
+        raise ValueError('readiness_timeout must be between 30 and 300 seconds')
     if pacing.get('delay_min',30)<0 or pacing.get('delay_max',45)<pacing.get('delay_min',30):raise ValueError('无效等待范围')
     location=c.get('location_filter')
     if location is not None:
@@ -234,7 +237,15 @@ def collect(run_dir,output,keyword='',max_pages=1,limit=3,refresh=False):
                     def detail_snapshot():
                         if c.get('access_mode')!='public':g.preflight(p)
                         return q.read_js(DETAIL_JS)
-                    d=wait_stable(detail_snapshot,valid)
+                    try:
+                        d=wait_page(detail_snapshot,valid,timeout=c.get('readiness_timeout',120),
+                            fingerprint=lambda d:(d.get('url'),d.get('title'),d.get('jd'),d.get('fields')))
+                    except PageNotReady as exc:
+                        write(out/(job['job_id']+'-readiness.json'),dict(status=exc.status,
+                            elapsed=exc.elapsed,observations=exc.observations,snapshot=exc.snapshot))
+                        if exc.status in ('CHALLENGE','LOGIN_REQUIRED','ACCESS_DENIED'):
+                            g.pause('Workday '+exc.status,p,pause_reason=exc.status)
+                        raise
                     values=accept_detail(job,d,c)
                     if job.get('jd_description') and job['jd_description']!=values['jd_description']:
                         job.setdefault('jd_history',[]).append(dict(description=job['jd_description'],read_at=job.get('jd_read_at')))
